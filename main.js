@@ -27,15 +27,6 @@ request.onupgradeneeded = (event) => {
 }
 
 
-function showTags() {
-  db.transaction(["tags"]).objectStore("tags").get(currentVideo).onsuccess = (event) => {
-  	if (event.target.result) {
-    	console.log(event.target.result);
-    }
-  }
-
-}
-
 function closeDiv() {
   var div = document.getElementById('tagContainer');
   var style = div.getAttribute('style');
@@ -126,4 +117,36 @@ if(window.location.href.indexOf("v=") > 0) { //If it is a valid video
   parent.append(tagButton);
 
   setTimeout(showTags, 500);
+}
+else {
+	var tagsInterval = setInterval(addTagsEntry, 1000);
+}
+
+function showTags() {
+  db.transaction(["tags"]).objectStore("tags").get(currentVideo).onsuccess = (event) => {
+  	if (event.target.result) {
+    	console.log(event.target.result);
+    }
+  }
+}
+
+function addTagsEntry() {
+  var container = document.getElementById('guide-inner-content').querySelector('#items');
+  if (!container || container.children.length < 4) {
+    return;
+  }
+  clearInterval(tagsInterval);
+
+  var elem = container.children[container.children.length - 1];
+  console.log(elem);
+
+
+  var tagsEntry =  document.createElement('input');
+  tagsEntry.value = 'Custom tags';
+  tagsEntry.type = 'button';
+  tagsEntry.onclick = () => alert('under development');
+
+  container.insertBefore(tagsEntry, elem);
+
+  console.log(container.children);
 }
