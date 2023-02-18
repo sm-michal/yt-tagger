@@ -130,6 +130,17 @@ function showTags() {
   }
 }
 
+function getTags(handler) {
+  db.transaction(["tags"]).objectStore("tags").openCursor().onsuccess = (event) => {
+    const cursor = event.target.result;
+    if (cursor) {
+      handler(cursor.key, cursor.value);
+      cursor.continue();
+    }
+  }
+}
+
+
 function addTagsEntry() {
   var container = document.getElementById('guide-inner-content').querySelector('#items');
   if (!container || container.children.length < 4) {
@@ -137,16 +148,50 @@ function addTagsEntry() {
   }
   clearInterval(tagsInterval);
 
+  var tagContainer = document.createElement('div');
+  tagContainer.id = 'tagsList';
+  tagContainer.setAttribute('style', 'display: none; z-index:3000; background-color: black; position: absolute; top:0; opacity:0.8; width: 1705px;');
+
+  var list = document.createElement('ul');
+  list.setAttribute('style', 'float: left; font-size: 1.4rem; margin-left: 20px;');
+  list.id = 'tagsListUl';
+  tagContainer.append(list);
+
+  document.body.insertBefore(tagContainer, document.body.firstChild);
+
   var elem = container.children[container.children.length - 1];
-  console.log(elem);
 
 
   var tagsEntry =  document.createElement('input');
   tagsEntry.value = 'Custom tags';
   tagsEntry.type = 'button';
-  tagsEntry.onclick = () => alert('under development');
+  tagsEntry.onclick = showTagList;
 
   container.insertBefore(tagsEntry, elem);
+}
 
-  console.log(container.children);
+function showTagList() {
+  var tagsList = document.getElementById('tagsList');
+  if (tagsList) {
+    tagsList.setAttribute('style', tagsList.getAttribute('style').replace('display: none;', ''));
+
+
+    getTags(handleShowTag);
+
+  }
+}
+
+function handleShowTag(key, value) {
+  const listElem = document.getElementById('tagsListUl');
+
+  value.tags.forEach(tag => {
+    var tagElem = document.createElement('li');
+  	var link = document.createElement('a');
+  	link.href = `https://www.youtube.com/watch?v=${key}&t=${parseInt(tag.time)}`;
+    link.innerHTML = tag.text;
+    tagElem.append(link);
+
+    listElem.append(tagElem)
+  });
+
 }
